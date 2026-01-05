@@ -5,7 +5,7 @@ This Docker Compose setup provides an Nginx reverse proxy with a web-based manag
 ## Services
 
 ### 1. Nginx Reverse Proxy (`nginx-proxy`)
-- **Port**: 8003 (HTTP) - *Changed to avoid port conflicts*
+- **Port**: 80 (HTTP) - *Standard HTTP port (IIS server stopped)*
 - **Purpose**: Routes requests to backend services on 172.16.116.82 network
 - **Path Mappings**:
   - `/map` → `http://172.16.116.82:3000`
@@ -48,9 +48,9 @@ chmod +x manage.sh
    ```
 
 2. **Access the services**:
-   - **Reverse Proxy**: http://localhost:8003
+   - **Reverse Proxy**: http://localhost
    - **Nginx UI**: http://localhost:8002
-   - **Admin Panel**: http://localhost:8003/admin
+   - **Admin Panel**: http://localhost/admin
 
 3. **Check service status**:
    ```bash
@@ -104,14 +104,14 @@ The reverse proxy is configured with the following mappings:
 
 ## Access Points
 
-- **Main Proxy**: http://localhost:8003 (routes to backend services)
+- **Main Proxy**: http://localhost (routes to backend services)
 - **Nginx UI Direct**: http://localhost:8002 (direct access to management UI)
-- **Nginx UI via Proxy**: http://localhost:8003/admin (access UI through main proxy)
+- **Nginx UI via Proxy**: http://localhost/admin (access UI through main proxy)
 
 ## Health Checks
 
 Both services include health checks:
-- **Nginx Proxy**: http://localhost:8003/health
+- **Nginx Proxy**: http://localhost/health
 - **Nginx UI**: Automatic container health monitoring
 
 ## Volumes and Data Persistence
@@ -134,14 +134,14 @@ If you encounter "port already in use" errors:
 
 ```bash
 # Check what's using the port
-netstat -ano | findstr :8003
+netstat -ano | findstr :80
 netstat -ano | findstr :8002
 
 # Kill the process using the port (replace PID with actual process ID)
 taskkill /PID <PID> /F
 
 # Or change ports in docker-compose.yml
-# Example: Change "8003:80" to "8004:80"
+# Example: Change "80:80" to "8000:80"
 # Example: Change "8002:80" to "8005:80"
 ```
 

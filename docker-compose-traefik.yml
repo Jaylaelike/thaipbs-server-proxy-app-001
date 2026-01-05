@@ -1,0 +1,112 @@
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik-reverse-proxy
+    command:
+      # Enable Docker provider
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      
+      # Entry points
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      
+      # Enable API and Dashboard
+      - --api.dashboard=true
+      - --api.insecure=true
+      
+      # Enable access logs
+      - --accesslog=true
+      - --log.level=INFO
+      
+      # Metrics
+      - --metrics.prometheus=true
+    ports:
+      - "80:80"     # HTTP
+      - "443:443"   # HTTPS
+      - "8080:8080" # Traefik Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik-data:/data
+    networks:
+      - traefik-network
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+
+  # Map Service Proxy
+  map-service:
+    image: nginx:alpine
+    container_name: map-service-proxy
+    volumes:
+      - ./services/map-proxy.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - traefik-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.map.rule=PathPrefix(`/map`)"
+      - "traefik.http.routers.map.service=map-service"
+      - "traefik.http.services.map-service.loadbalancer.server.url=http://172.16.116.82:3000"
+      - "traefik.http.middlewares.map-stripprefix.stripprefix.prefixes=/map"
+      - "traefik.http.routers.map.middlewares=map-stripprefix"
+
+  # Data Service Proxy  
+  data-service:
+    image: nginx:alpine
+    container_name: data-service-proxy
+    volumes:
+      - ./services/data-proxy.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - traefik-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.data.rule=PathPrefix(`/data`)"
+      - "traefik.http.routers.data.service=data-service"
+      - "traefik.http.services.data-service.loadbalancer.server.url=http://172.16.116.82:8501"
+      - "traefik.http.middlewares.data-stripprefix.stripprefix.prefixes=/data"
+      - "traefik.http.routers.data.middlewares=data-stripprefix"
+
+  # PM25 Service Proxy
+  pm25-service:
+    image: nginx:alpine
+    container_name: pm25-service-proxy
+    volumes:
+      - ./services/pm25-proxy.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - traefik-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pm25.rule=PathPrefix(`/pm25`)"
+      - "traefik.http.routers.pm25.service=pm25-service"
+      - "traefik.http.services.pm25-service.loadbalancer.server.url=http://172.16.116.82:3002"
+      - "traefik.http.middlewares.pm25-stripprefix.stripprefix.prefixes=/pm25"
+      - "traefik.http.routers.pm25.middlewares=pm25-stripprefix"
+
+  # PM25 InfluxDB Service Proxy
+  pm25infuxd-service:
+    image: nginx:alpine
+    container_name: pm25infuxd-service-proxy
+    volumes:
+      - ./services/pm25infuxd-proxy.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - traefik-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pm25infuxd.rule=PathPrefix(`/pm25infuxd`)"
+      - "traefik.http.routers.pm25infuxd.service=pm25infuxd-service"
+      - "traefik.http.services.pm25infuxd-service.loadbalancer.server.url=http://172.16.116.82:8086"
+      - "traefik.http.middlewares.pm25infuxd-stripprefix.stripprefix.prefixes=/pm25infuxd"
+      - "traefik.http.routers.pm25infuxd.middlewares=pm25infuxd-stripprefix"
+
+networks:
+  traefik-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
+
+volumes:
+  traefik-data:
+    driver: local

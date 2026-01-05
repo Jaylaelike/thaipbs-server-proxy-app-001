@@ -19,7 +19,7 @@ docker-compose up -d
 
 ### 🌐 Reverse Proxy (Main Service)
 ```
-http://localhost:8003
+http://localhost
 ```
 **Available paths:**
 - `/map` → Your mapping service (172.16.116.82:3000)
@@ -37,7 +37,7 @@ http://localhost:8002
 
 **🔧 Alternative access via proxy:**
 ```
-http://localhost:8003/admin
+http://localhost/admin
 ```
 
 ## 3. Verify Everything Works
@@ -47,10 +47,10 @@ http://localhost:8003/admin
 ./manage.sh status
 
 # Test health endpoint
-curl http://localhost:8003/health
+curl http://localhost/health
 
 # Test a backend route (example)
-curl http://localhost:8003/map
+curl http://localhost/map
 ```
 
 ## 4. Quick Configuration
@@ -112,11 +112,11 @@ Your Nginx reverse proxy with web UI is now running:
 If you get port binding errors:
 ```bash
 # Check what's using ports
-netstat -ano | findstr :8003
+netstat -ano | findstr :80
 netstat -ano | findstr :8002
 
 # Change to different port in docker-compose.yml
-# Example: "8004:80" instead of "8003:80"
+# Example: "8000:80" instead of "80:80"
 # Example: "8005:80" instead of "8002:80"
 ```
 

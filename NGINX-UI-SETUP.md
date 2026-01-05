@@ -35,7 +35,7 @@ nginx-ui:
 - **Credentials**: admin/admin (change on first login)
 
 #### Proxy Access
-- **URL**: http://localhost:8003/admin
+- **URL**: http://localhost/admin
 - **Purpose**: Access UI through the main reverse proxy
 - **Benefits**: Single entry point, consistent routing
 

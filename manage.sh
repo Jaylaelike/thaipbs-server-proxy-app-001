@@ -24,9 +24,9 @@ show_help() {
     echo "  help      Show this help message"
     echo ""
     echo "Access URLs:"
-    echo "  Reverse Proxy: http://localhost:8003"
+    echo "  Reverse Proxy: http://localhost"
     echo "  Nginx UI:      http://localhost:8002"
-    echo "  Admin Panel:   http://localhost:8003/admin"
+    echo "  Admin Panel:   http://localhost/admin"
 }
 
 start_services() {
@@ -36,9 +36,9 @@ start_services() {
     echo "✅ Services started successfully!"
     echo ""
     echo "Access URLs:"
-    echo "  🌐 Reverse Proxy: http://localhost:8003"
+    echo "  🌐 Reverse Proxy: http://localhost"
     echo "  ⚙️  Nginx UI:      http://localhost:8002"
-    echo "  🔧 Admin Panel:   http://localhost:8003/admin"
+    echo "  🔧 Admin Panel:   http://localhost/admin"
     echo ""
     echo "Default Nginx UI credentials:"
     echo "  Username: admin"
@@ -64,7 +64,7 @@ show_status() {
     docker-compose ps
     echo ""
     echo "🔍 Health Checks:"
-    echo "  Proxy Health: curl -s http://localhost:8003/health"
+    echo "  Proxy Health: curl -s http://localhost/health"
     echo "  UI Health:    curl -s http://localhost:8002"
 }
 

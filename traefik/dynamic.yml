@@ -1,0 +1,126 @@
+http:
+  routers:
+    # Map service router
+    map-router:
+      rule: "PathPrefix(`/map`)"
+      service: "map-service"
+      middlewares:
+        - "map-stripprefix"
+      entryPoints:
+        - "web"
+
+    # Data service router
+    data-router:
+      rule: "PathPrefix(`/data`)"
+      service: "data-service"
+      middlewares:
+        - "data-stripprefix"
+      entryPoints:
+        - "web"
+
+    # PM25 service router
+    pm25-router:
+      rule: "PathPrefix(`/pm25`)"
+      service: "pm25-service"
+      middlewares:
+        - "pm25-stripprefix"
+      entryPoints:
+        - "web"
+
+    # PM25 InfluxDB service router
+    pm25infuxd-router:
+      rule: "PathPrefix(`/pm25infuxd`)"
+      service: "pm25infuxd-service"
+      middlewares:
+        - "pm25infuxd-stripprefix"
+      entryPoints:
+        - "web"
+
+    # Health check router
+    health-router:
+      rule: "Path(`/health`)"
+      service: "health-service"
+      entryPoints:
+        - "web"
+
+  services:
+    # Map service (172.16.116.82:3000)
+    map-service:
+      loadBalancer:
+        servers:
+          - url: "http://172.16.116.82:3000"
+        healthCheck:
+          path: "/"
+          interval: "30s"
+          timeout: "10s"
+
+    # Data service (172.16.116.82:8501)
+    data-service:
+      loadBalancer:
+        servers:
+          - url: "http://172.16.116.82:8501"
+        healthCheck:
+          path: "/"
+          interval: "30s"
+          timeout: "10s"
+
+    # PM25 service (172.16.116.82:3002)
+    pm25-service:
+      loadBalancer:
+        servers:
+          - url: "http://172.16.116.82:3002"
+        healthCheck:
+          path: "/"
+          interval: "30s"
+          timeout: "10s"
+
+    # PM25 InfluxDB service (172.16.116.82:8086)
+    pm25infuxd-service:
+      loadBalancer:
+        servers:
+          - url: "http://172.16.116.82:8086"
+        healthCheck:
+          path: "/ping"
+          interval: "30s"
+          timeout: "10s"
+
+    # Health check service
+    health-service:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:8080/ping"
+
+  middlewares:
+    # Strip /map prefix
+    map-stripprefix:
+      stripPrefix:
+        prefixes:
+          - "/map"
+
+    # Strip /data prefix
+    data-stripprefix:
+      stripPrefix:
+        prefixes:
+          - "/data"
+
+    # Strip /pm25 prefix
+    pm25-stripprefix:
+      stripPrefix:
+        prefixes:
+          - "/pm25"
+
+    # Strip /pm25infuxd prefix
+    pm25infuxd-stripprefix:
+      stripPrefix:
+        prefixes:
+          - "/pm25infuxd"
+
+    # Security headers
+    security-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: "http"
+        customResponseHeaders:
+          X-Frame-Options: "SAMEORIGIN"
+          X-XSS-Protection: "1; mode=block"
+          X-Content-Type-Options: "nosniff"
