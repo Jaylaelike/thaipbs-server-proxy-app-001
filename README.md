@@ -5,7 +5,7 @@ This Docker Compose setup provides an Nginx reverse proxy with a web-based manag
 ## Services
 
 ### 1. Nginx Reverse Proxy (`nginx-proxy`)
-- **Port**: 80 (HTTP)
+- **Port**: 8003 (HTTP) - *Changed to avoid port conflicts*
 - **Purpose**: Routes requests to backend services on 172.16.116.82 network
 - **Path Mappings**:
   - `/map` → `http://172.16.116.82:3000`
@@ -14,9 +14,9 @@ This Docker Compose setup provides an Nginx reverse proxy with a web-based manag
   - `/pm25infuxd` → `http://172.16.116.82:8086`
 
 ### 2. Nginx UI Management (`nginx-ui`)
-- **Port**: 8080 (HTTP), 8443 (HTTPS)
+- **Port**: 8002 (HTTP), 8443 (HTTPS) - *Changed from 8080 to avoid API conflicts*
 - **Purpose**: Web-based interface for managing Nginx configurations
-- **Access**: http://localhost:8080
+- **Access**: http://localhost:8002
 - **Default Credentials**: 
   - Username: `admin`
   - Password: `admin` (change on first login)
@@ -48,9 +48,9 @@ chmod +x manage.sh
    ```
 
 2. **Access the services**:
-   - **Reverse Proxy**: http://localhost
-   - **Nginx UI**: http://localhost:8080
-   - **Admin Panel**: http://localhost/admin
+   - **Reverse Proxy**: http://localhost:8003
+   - **Nginx UI**: http://localhost:8002
+   - **Admin Panel**: http://localhost:8003/admin
 
 3. **Check service status**:
    ```bash
@@ -104,14 +104,14 @@ The reverse proxy is configured with the following mappings:
 
 ## Access Points
 
-- **Main Proxy**: http://localhost (routes to backend services)
-- **Nginx UI Direct**: http://localhost:8080 (direct access to management UI)
-- **Nginx UI via Proxy**: http://localhost/admin (access UI through main proxy)
+- **Main Proxy**: http://localhost:8003 (routes to backend services)
+- **Nginx UI Direct**: http://localhost:8002 (direct access to management UI)
+- **Nginx UI via Proxy**: http://localhost:8003/admin (access UI through main proxy)
 
 ## Health Checks
 
 Both services include health checks:
-- **Nginx Proxy**: http://localhost/health
+- **Nginx Proxy**: http://localhost:8003/health
 - **Nginx UI**: Automatic container health monitoring
 
 ## Volumes and Data Persistence
@@ -128,6 +128,22 @@ Both services include health checks:
 4. **Firewall**: Ensure proper firewall rules for your environment
 
 ## Troubleshooting
+
+### Port Conflicts (Windows)
+If you encounter "port already in use" errors:
+
+```bash
+# Check what's using the port
+netstat -ano | findstr :8003
+netstat -ano | findstr :8002
+
+# Kill the process using the port (replace PID with actual process ID)
+taskkill /PID <PID> /F
+
+# Or change ports in docker-compose.yml
+# Example: Change "8003:80" to "8004:80"
+# Example: Change "8002:80" to "8005:80"
+```
 
 ### Service Won't Start
 ```bash

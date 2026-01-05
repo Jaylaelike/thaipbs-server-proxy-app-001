@@ -18,7 +18,7 @@ nginx-ui:
   image: uozi/nginx-ui:latest
   container_name: nginx-ui-manager
   ports:
-    - "8080:80"    # HTTP access to UI
+    - "8002:80"    # HTTP access to UI (changed from 8080)
     - "8443:443"   # HTTPS access to UI
   volumes:
     - nginx-config:/etc/nginx          # Nginx configurations
@@ -30,12 +30,12 @@ nginx-ui:
 ### 3. Access Methods
 
 #### Direct Access
-- **URL**: http://localhost:8080
+- **URL**: http://localhost:8002
 - **Purpose**: Direct access to Nginx UI management interface
 - **Credentials**: admin/admin (change on first login)
 
 #### Proxy Access
-- **URL**: http://localhost/admin
+- **URL**: http://localhost:8003/admin
 - **Purpose**: Access UI through the main reverse proxy
 - **Benefits**: Single entry point, consistent routing
 
@@ -105,14 +105,14 @@ Two named volumes ensure data persistence:
 ## Security Notes
 
 1. **Change Default Credentials**: The default admin/admin credentials should be changed immediately
-2. **Network Security**: Consider restricting access to port 8080 in production
+2. **Network Security**: Consider restricting access to port 8002 in production
 3. **SSL Configuration**: Enable HTTPS for production deployments
 4. **Access Control**: Configure proper authentication and authorization
 
 ## Next Steps
 
 1. Start the services: `./manage.sh start`
-2. Access Nginx UI: http://localhost:8080
+2. Access Nginx UI: http://localhost:8002
 3. Change default password
 4. Explore the interface and configure as needed
 5. Use the UI to manage your reverse proxy configurations
